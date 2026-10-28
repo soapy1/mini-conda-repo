@@ -7,6 +7,9 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 USERNAME = "admin"
 PASSWORD = "password123"
 
+# Set MCR_NO_AUTH to any non-empty value to disable authentication
+NO_AUTH = bool(os.environ.get("MCR_NO_AUTH"))
+
 # Directory to serve, relative to this file
 SERVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mini-conda-repo")
 
@@ -22,6 +25,9 @@ class AuthHandler(SimpleHTTPRequestHandler):
 
     def check_auth(self):
         """Validates the Authorization header against your credentials."""
+        if NO_AUTH:
+            return True
+
         auth_header = self.headers.get("Authorization")
 
         if auth_header is None:
@@ -70,7 +76,8 @@ def run(port=8000):
     server_address = ("", port)
     handler = partial(AuthHandler, directory=SERVE_DIR)
     httpd = HTTPServer(server_address, handler)
-    print(f"Serving {SERVE_DIR} over HTTP on port {port} with Basic Auth enabled...")
+    auth_status = "disabled" if NO_AUTH else "enabled"
+    print(f"Serving {SERVE_DIR} over HTTP on port {port} with Basic Auth {auth_status}...")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
