@@ -1,0 +1,5 @@
+channel_alias: http://admin:password123@localhost:8000
+channels:
+   - http://admin:password123@localhost:8000
+default_channels:
+   - http://admin:password123@localhost:8000
