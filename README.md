@@ -16,6 +16,11 @@ Or, run the server without auth
 MCR_NO_AUTH=true pixi run serve
 ```
 
+Try with shards:
+```
+$ MCR_SHARDED=true pixi run serve
+```
+
 ## Try it out with conda
 
 Use the provided `condarc` at the root of this project to auth against the test channel.

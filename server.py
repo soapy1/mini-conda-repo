@@ -11,7 +11,12 @@ PASSWORD = "password123"
 NO_AUTH = bool(os.environ.get("MCR_NO_AUTH"))
 
 # Directory to serve, relative to this file
-SERVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mini-conda-repo")
+CLASSIC_REPO = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "mini-conda-repo"
+)
+SHARDED_REPO = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "mini-sharded-conda-repo"
+)
 
 
 class AuthHandler(SimpleHTTPRequestHandler):
@@ -74,10 +79,17 @@ class AuthHandler(SimpleHTTPRequestHandler):
 
 def run(port=8000):
     server_address = ("", port)
-    handler = partial(AuthHandler, directory=SERVE_DIR)
+
+    serve_dir = CLASSIC_REPO
+    if bool(os.environ.get("MCR_SHARDED")):
+        serve_dir = SHARDED_REPO
+
+    handler = partial(AuthHandler, directory=serve_dir)
     httpd = HTTPServer(server_address, handler)
     auth_status = "disabled" if NO_AUTH else "enabled"
-    print(f"Serving {SERVE_DIR} over HTTP on port {port} with Basic Auth {auth_status}...")
+    print(
+        f"Serving {serve_dir} over HTTP on port {port} with Basic Auth {auth_status}..."
+    )
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
